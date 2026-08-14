@@ -1,3 +1,14 @@
+*   Deprecate unknown keys passed to `#advance`.
+
+    `#advance` takes plural keys (`:months`) while its sibling `#change` takes
+    singular ones (`:month`). An easy thing to mix up, and doing so silently
+    ignored the option and returned the receiver unchanged, so
+    `advance(month: -1)` did nothing. Unknown keys now warn, and will raise
+    `ArgumentError` in Rails 9.0. This covers `Date`, `Time`, `DateTime` and
+    `ActiveSupport::TimeWithZone`.
+
+    *Eric Milford*
+
 *   Return a UTC time from `Time.rfc3339` for strings with the "Z" UTC designator.
 
     ```ruby

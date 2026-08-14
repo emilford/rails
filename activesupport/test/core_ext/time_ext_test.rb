@@ -615,6 +615,15 @@ class TimeExtCalculationsTest < ActiveSupport::TestCase
     assert_equal Time.new(2021, 5, 29, 0, 0, 0, "+03:00").advance(days: 3), ActiveSupport::TimeZone["Moscow"].local(2021, 5, 29, 0, 0, 0).advance(days: 3)
   end
 
+  def test_advance_with_unknown_key_is_deprecated
+    _, warnings = collect_deprecations(ActiveSupport.deprecator) do
+      Time.utc(2005, 2, 28, 15, 15, 10).advance(month: 1)
+    end
+
+    assert_equal 1, warnings.size
+    assert_match(/Unknown key: :month/, warnings.first)
+  end
+
   def test_utc_advance
     assert_equal Time.utc(2006, 2, 22, 15, 15, 10), Time.utc(2005, 2, 22, 15, 15, 10).advance(years: 1)
     assert_equal Time.utc(2005, 6, 22, 15, 15, 10), Time.utc(2005, 2, 22, 15, 15, 10).advance(months: 4)

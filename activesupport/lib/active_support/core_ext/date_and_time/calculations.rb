@@ -421,5 +421,15 @@ module DateAndTime
       def copy_time_to(other)
         other.change(hour: hour, min: min, sec: sec, nsec: try(:nsec))
       end
+
+      def validate_advance_options(options)
+        if (unknown_keys = options.keys - ActiveSupport::Duration::PARTS).any?
+          ActiveSupport.deprecator.warn(
+            "Unknown key#{"s" if unknown_keys.size > 1}: #{unknown_keys.map(&:inspect).join(", ")}. " \
+            "Valid keys are: #{ActiveSupport::Duration::PARTS.map(&:inspect).join(", ")}. " \
+            "Unknown keys are ignored, and will raise ArgumentError in Rails 9.0."
+          )
+        end
+      end
   end
 end

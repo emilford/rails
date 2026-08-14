@@ -739,6 +739,15 @@ class TimeWithZoneTest < ActiveSupport::TestCase
     assert_equal "1999-12-31 19:00:30.000000000 EST -05:00", @twz.advance(seconds: 30).inspect
   end
 
+  def test_advance_with_unknown_key_is_deprecated
+    _, warnings = collect_deprecations(ActiveSupport.deprecator) do
+      @twz.advance(month: 1)
+    end
+
+    assert_equal 1, warnings.size
+    assert_match(/Unknown key: :month/, warnings.first)
+  end
+
   def test_beginning_of_year
     assert_equal "1999-12-31 19:00:00.000000000 EST -05:00", @twz.inspect
     assert_equal "1999-01-01 00:00:00.000000000 EST -05:00", @twz.beginning_of_year.inspect

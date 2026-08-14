@@ -149,6 +149,42 @@ class DateExtCalculationsTest < ActiveSupport::TestCase
     assert_equal Date.new(2005, 2, 28), Date.new(2004, 2, 29).advance(years: 1) # leap day plus one year
   end
 
+  def test_advance_with_unknown_key_is_deprecated
+    _, warnings = collect_deprecations(ActiveSupport.deprecator) do
+      Date.new(2005, 2, 28).advance(month: 1)
+    end
+
+    assert_equal 1, warnings.size
+    assert_match(/Unknown key: :month/, warnings.first)
+  end
+
+  def test_advance_with_unknown_keys_reports_all_of_them
+    _, warnings = collect_deprecations(ActiveSupport.deprecator) do
+      Date.new(2005, 2, 28).advance(month: 1, week: 2)
+    end
+
+    assert_equal 1, warnings.size
+    assert_match(/Unknown keys: :month, :week/, warnings.first)
+  end
+
+  def test_advance_with_unknown_key_reports_the_valid_keys
+    _, warnings = collect_deprecations(ActiveSupport.deprecator) do
+      Date.new(2005, 2, 28).advance(month: 1)
+    end
+
+    assert_equal 1, warnings.size
+    assert_match(/Valid keys are: :years, :months, :weeks, :days, :hours, :minutes, :seconds/, warnings.first)
+    assert_match(/will raise ArgumentError in Rails 9\.0/, warnings.first)
+  end
+
+  def test_advance_with_unknown_key_still_applies_the_valid_keys
+    advanced = assert_deprecated(ActiveSupport.deprecator) do
+      Date.new(2005, 2, 28).advance(years: 1, month: 3)
+    end
+
+    assert_equal Date.new(2006, 2, 28), advanced
+  end
+
   def test_advance_does_first_years_and_then_days
     assert_equal Date.new(2012, 2, 29), Date.new(2011, 2, 28).advance(years: 1, days: 1)
     # If day was done first we would jump to 2012-03-01 instead.

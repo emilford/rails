@@ -130,6 +130,7 @@ class Date
   # ```
   #
   def advance(options)
+    validate_advance_options(options)
     d = self
 
     d = d >> options[:years] * 12 if options[:years]
